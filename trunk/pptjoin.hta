@@ -1,0 +1,102 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+	<title>Powerpoint Join</title>
+	<hta:application 
+		id="pptjoin" 
+		scroll="yes" 
+		windowstate="normal"
+		maximizebutton="yes" 
+		sysmenu="yes" 
+		singleinstance="yes"
+		showintaskbar="yes" 
+		caption="yes" 
+		border="thin"
+		applicationname="pptjoin" 
+		scrollflat="yes">
+	</hta:application>
+
+	<script language="javascript" src="lang.en-US.js"></script>
+	<script language="javascript" src="sprintf.js"></script>
+	<script language="javascript" src="pptjoin.init.js"></script>
+ 	<script language="javascript" src="pptjoin.functions.js"></script>
+
+	<style type="text/css">
+		#debug {
+			display: none;
+			border: 1px dashed red;
+			padding: 3px;
+			font-size: 8pt;
+		}
+		li {
+			padding-bottom: 20px;
+		}
+		body {
+			font-family: helvetica;
+		}
+		p {
+			font-family: Helvetica;
+		}
+		button {
+			margin-right: 3px;
+			font-size: smaller;
+		}
+		button, textarea, select {
+			border: 1px solid black;
+		}
+		a, a:visited {
+			text-decoration: none;
+			font-weight: bold;
+			font-size: 12pt;
+			color: blue;
+		}
+		a:hover {
+			text-decoration: underline;
+		}
+		p#progress {
+			display: none;
+			color: #999933;
+			font-variant: italic;
+			font-family: Helvetica;
+			font-size: larger;
+			font-weight: bold;
+			background: white;
+		}
+		div#help {
+			border: 2px solid black;
+			width: 400px;
+			height: 300px;
+			position: absolute;
+			top: 200px;
+			left: 200px;
+			background: lightgrey;
+		}
+
+	</style>
+</head>
+<body onload="init()">
+<div style="display:none" id="help">
+	<a href="#" onclick="hideHelp()">Close</a>
+	<div id="help-message"></div>
+</div>
+<ol>
+	<li>
+		<span id="step1"></span><br>
+		<input type="file" id="filename" onchange="validateFile(this)">
+	</li>
+	<li>
+		<span id="step2"></span>
+	</li>
+	<li>
+		<span id="step3"></span>
+	</li>
+</ol>
+<hr />
+<table>
+<tr>
+	<td id="total-slides"></td><td id="total-charts">0</td>
+</tr>
+</table>
+<div id="debug"></div>
+</body>
+</html>
