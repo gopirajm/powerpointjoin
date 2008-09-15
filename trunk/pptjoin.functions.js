@@ -27,6 +27,7 @@ function processFiles() {
 	var fso = new ActiveXObject("Scripting.FileSystemObject");
 	var objPpt;
 	var pptMain;
+	var all_is_well = true;
 	try {
 		objPpt = new ActiveXObject("Powerpoint.Application");
 		objPpt.Presentations.Add();
@@ -40,13 +41,23 @@ function processFiles() {
 			var directory = fso.GetParentFolderName(filename);
 			var pptMainFilename = directory + "\\" + STRINGS.COMBINED_CHARTS_FILENAME;
 			debug("pptMainFilename = " + pptMainFilename);
-			fso.CopyFile(txt.ReadLine(), pptMainFilename);
+			var firstppt = txt.ReadLine();
+			debug("First ppt = " + firstppt);
+			if(! fso.FileExists(firstppt) ) {
+				firstppt = directory + "\\" + firstppt;
+				if( ! fso.FileExists(firstppt) ) {
+					alert("The first set of charts cannot be found");
+					return;
+				}
+			}
+			fso.CopyFile(firstppt, pptMainFilename);
 			pptMain = objPpt.Presentations.Open(pptMainFilename);
 			debug("Open");
 
 			//pptMain.SaveAs(pptMainFilename);
 			if(! fso.FileExists(pptMainFilename) ) {
 				debug("Did not save correctly");
+				all_is_well = false;
 				return;
 			} else {
 				debug("Saved");
@@ -57,13 +68,12 @@ function processFiles() {
 					debug("Reading line " + line);
 					var ppt = line;
 					if(! fso.FileExists(ppt)) {
-						debug("it ain't " + ppt);
+						debug("  it ain't " + ppt);
 						if(! fso.FileExists(directory + "\\" + ppt) ) {
 							alert(sprintf(STRINGS.CHARTS_NOT_FOUND, ppt));
 							break;
 						} else {
 							ppt = directory + "\\" + ppt;
-							debug("must be " + ppt);
 						}
 					}
 					debug("  Found ppt '" + ppt + "'");
@@ -71,13 +81,18 @@ function processFiles() {
 					updateTotal(iMainCharts);
 					debug("iMainCharts = " + iMainCharts);
 					debug("Inserting " + ppt);
-					pptMain.Slides.InsertFromFile(directory + "\\" + ppt, iMainCharts);
+					//pptMain.Slides.InsertFromFile(directory + "\\" + ppt, iMainCharts);
+					pptMain.Slides.InsertFromFile(ppt, iMainCharts);
 					debug("InsertFromFile");
-					$('step3').innerHTML = sprintf(STRINGS.STEP3, STRINGS.COMBINED_CHARTS_FILENAME);
 				} catch (e) {
-					//alert("Oh No!\n" + e.description);
+					debug("Oh No!\n" + e.description);
+					alert("Oh No!\n" + e.description);
+					all_is_well = false;
 					break;
 				}
+			}
+			if(all_is_well) {
+				$('step3').innerHTML = sprintf(STRINGS.STEP3, STRINGS.COMBINED_CHARTS_FILENAME);
 			}
 			updateTotal(pptMain.Slides.Count);
 			debug("Finished");
@@ -88,13 +103,18 @@ function processFiles() {
 	} catch (e) {
 		alert("OH NO! \n" + e.description + "\n" + sprintf(STRINGS.CLOSE_COMBINED, STRINGS.COMBINED_CHARTS_FILENAME));
 	} 
-	pptMain.Save();
-	pptMain.Close();
-	debug("closed");
-	pptMain = null;
-	objPpt.Quit();
-	objPpt = null;
-	fso = null;
+	try {
+		pptMain.Save();
+		pptMain.Close();
+		debug("closed");
+		objPpt.Quit();
+	} catch (e) {
+		debug("Error cleaning up:  " + e.description);
+	} finally {
+		pptMain = null;
+		objPpt = null;
+		fso = null;
+	}
 }
 
 function openCharts() {
@@ -102,13 +122,30 @@ function openCharts() {
 	var pptcharts = STRINGS.COMBINED_CHARTS_FILENAME;
 	var fso = new ActiveXObject("Scripting.FileSystemObject");
 	var directory = fso.GetParentFolderName(txtfile);
-	if(! fso.FileExists(pptcharts)) {
+	var found_charts = false;
+	if(fso.FileExists(pptcharts)) {
+		found_charts = true;
+	} else {
 		pptcharts = directory + "\\" + pptcharts;
+		if(fso.FileExists(pptcharts) ) {
+			found_charts = true;
+		}
+	}
+
+	if(found_charts) {
+		debug("opening " + pptcharts);
+		var objPpt = new ActiveXObject("Powerpoint.Application");
+		objPpt.Presentations.Add();
+		objPpt.Visible = true;
+		objPpt.Presentations.Open(pptcharts);
+
+	}  else {
+		debug("Still can't find " + pptcharts);
+		alert("Can't find " + pptcharts);
+		openFolder();
 	}
 	fso = null;
-	var sh = new ActiveXObject("WScript.Shell");
-	debug("opening " + pptcharts);
-	sh.Run(pptcharts);
+	sh = null;
 }
 
 function openFolder() {
