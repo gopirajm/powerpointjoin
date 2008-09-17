@@ -25,5 +25,4 @@ Use
 Prerequisites
 *	Text file containing the list of charts to combine must be in the same
 	directory as the charts that are being combined.
-
-I've only tested this with PowerPoint 2007, but the files were in 2003 format.
+*	Office 2003/7 (duh)
